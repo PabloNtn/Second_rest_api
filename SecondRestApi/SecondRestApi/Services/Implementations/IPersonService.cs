@@ -1,11 +1,14 @@
-﻿using System;
+﻿using SecondRestApi.Model;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace SecondRestApi.Services.Implementations
 {
-    interface IPersonService
+    public interface IPersonService
     {
+        Person Create(Person person);
+        Person FindeById(long id);
+        List<Person> FindAll();
+        void Delete(long id);
+        Person Update(Person person);
     }
 }
