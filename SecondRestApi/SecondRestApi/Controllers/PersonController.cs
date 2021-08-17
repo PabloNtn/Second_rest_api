@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using SecondRestApi.Model;
+using SecondRestApi.Services.Implementations;
 
 namespace SecondRestApi.Controllers
 {
@@ -12,40 +14,47 @@ namespace SecondRestApi.Controllers
     public class CalculatorController : ControllerBase
     {
         private readonly ILogger<CalculatorController> _logger;
+        private IPersonService _personService;
 
-        public CalculatorController(ILogger<CalculatorController> logger)
+        public CalculatorController(ILogger<CalculatorController> logger, IPersonService personService)
         {
             _logger = logger;
+            _personService = personService;
         }
 
-        [HttpGet("sum/{firstNumber}/{secondNumber}")]
-        public IActionResult Get(string firstNumber, string SecondNumber)
+        [HttpGet]
+        public IActionResult Get()
         {
-            if (IsNumeric(firstNumber) && IsNumeric(SecondNumber))
-            {
-                var sum = ConvertToDecimal(firstNumber) + ConvertToDecimal(SecondNumber);
-                return Ok(sum.ToString());
-            }
-            return BadRequest("Comando Invalido");
+            return Ok(_personService.FindAll());
         }
 
-        private decimal ConvertToDecimal(string value)
+        [HttpGet("{id}")]
+        public IActionResult Get(long id)
         {
-            decimal decimalValue;
-            if (decimal.TryParse(value, out decimalValue))
-                return decimalValue;
-            return 0;
+            var person = _personService.FindById(id);
+            if (person == null) return NotFound();
+            return Ok(person);
         }
 
-        private bool IsNumeric(string value)
+        [HttpPost]
+        public IActionResult Post([FromBody] Person person)
         {
-            double number;
-            bool isNumber = double.TryParse(
-                value, 
-                System.Globalization.NumberStyles.Any,
-                System.Globalization.NumberFormatInfo.InvariantInfo,
-                out number);
-            return isNumber;
+            if (person == null) return BadRequest();
+            return Ok(_personService.Create(person));
+        }
+
+        [HttpPut]
+        public IActionResult Put([FromBody] Person person)
+        {
+            if (person == null) return BadRequest();
+            return Ok(_personService.Update(person));
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(long id)
+        {
+            _personService.Delete(id);
+            return NoContent();
         }
     }
 }
