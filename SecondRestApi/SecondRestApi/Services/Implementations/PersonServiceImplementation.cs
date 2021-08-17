@@ -55,9 +55,9 @@ namespace SecondRestApi.Services.Implementations
             return new Person
             {
                 id = IncrementAndGet(),
-                FirstName = "Person Name",
-                LastName = "Person LastName",
-                Adress = "Some Adress",
+                FirstName = "Person Name" + i,
+                LastName = "Person LastName" + i,
+                Adress = "Some Adress" + i,
                 Gender = "Male"
             };
         }
