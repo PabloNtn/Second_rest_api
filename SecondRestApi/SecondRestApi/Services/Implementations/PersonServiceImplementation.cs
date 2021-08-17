@@ -26,16 +26,15 @@ namespace SecondRestApi.Services.Implementations
             List<Person> persons = new List<Person>();
             for(int i = 0; i < 8; i++)
             {
-                object person = MockPerson(i);
-                persons.add(person)
+                Person person = MockPerson(i);
+                persons.Add(person);
             }
             return persons;
         }
 
-        
-
-        public Person FindeById(long id)
+        public Person FindById(long id)
         {
+
             return new Person
             {
                 id = IncrementAndGet(),
@@ -50,7 +49,7 @@ namespace SecondRestApi.Services.Implementations
         {
             return person;
         }
-        private object MockPerson(int i)
+        private Person MockPerson(int i)
         {
             return new Person
             {
@@ -66,5 +65,7 @@ namespace SecondRestApi.Services.Implementations
         {
             return Interlocked.Increment(ref count);
         }
+
+        
     }
 }

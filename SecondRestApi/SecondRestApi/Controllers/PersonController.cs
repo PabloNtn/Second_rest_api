@@ -10,13 +10,13 @@ using SecondRestApi.Services.Implementations;
 namespace SecondRestApi.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
-    public class CalculatorController : ControllerBase
+    [Route("api/[controller]")]
+    public class PersonController : ControllerBase
     {
-        private readonly ILogger<CalculatorController> _logger;
+        private readonly ILogger<PersonController> _logger;
         private IPersonService _personService;
 
-        public CalculatorController(ILogger<CalculatorController> logger, IPersonService personService)
+        public PersonController(ILogger<PersonController> logger, IPersonService personService)
         {
             _logger = logger;
             _personService = personService;
