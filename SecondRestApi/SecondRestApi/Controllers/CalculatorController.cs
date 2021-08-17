@@ -18,7 +18,7 @@ namespace SecondRestApi.Controllers
             _logger = logger;
         }
 
-        [HttpGet("sun/{firstNumber}/{secondNumber}")]
+        [HttpGet("sum/{firstNumber}/{secondNumber}")]
         public IActionResult Get(string firstNumber, string SecondNumber)
         {
             if (IsNumeric(firstNumber) && IsNumeric(SecondNumber))
@@ -29,14 +29,23 @@ namespace SecondRestApi.Controllers
             return BadRequest("Comando Invalido");
         }
 
-        private int ConvertToDecimal(string value)
+        private decimal ConvertToDecimal(string value)
         {
-            t
+            decimal decimalValue;
+            if (decimal.TryParse(value, out decimalValue))
+                return decimalValue;
+            return 0;
         }
 
         private bool IsNumeric(string value)
         {
-           
+            double number;
+            bool isNumber = double.TryParse(
+                value, 
+                System.Globalization.NumberStyles.Any,
+                System.Globalization.NumberFormatInfo.InvariantInfo,
+                out number);
+            return isNumber;
         }
     }
 }
