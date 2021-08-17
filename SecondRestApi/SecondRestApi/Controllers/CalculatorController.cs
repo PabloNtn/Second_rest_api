@@ -19,16 +19,24 @@ namespace SecondRestApi.Controllers
         }
 
         [HttpGet("sun/{firstNumber}/{secondNumber}")]
-        public IActionResult Get()
+        public IActionResult Get(string firstNumber, string SecondNumber)
         {
-            var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            if (IsNumeric(firstNumber) && IsNumeric(SecondNumber))
             {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = rng.Next(-20, 55),
-                Summary = Summaries[rng.Next(Summaries.Length)]
-            })
-            .ToArray();
+                var sum = ConvertToDecimal(firstNumber) + ConvertToDecimal(SecondNumber);
+                return Ok(sum.ToString());
+            }
+            return BadRequest("Comando Invalido");
+        }
+
+        private int ConvertToDecimal(string value)
+        {
+            t
+        }
+
+        private bool IsNumeric(string value)
+        {
+           
         }
     }
 }
