@@ -30,7 +30,7 @@ namespace SecondRestApi
         {
             services.AddControllers();
             //dependency injection
-            services.AddScoped<IPersonService, PersonServiceImplementation>();
+            services.AddScoped<IStudentService, StudentServiceImplementation>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "SecondRestApi", Version = "v1" });
