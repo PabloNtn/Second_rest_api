@@ -9,16 +9,16 @@ namespace SecondRestApi.Model
     {
         private string alu_nm;
         private string alu_nr_tel;
-        private string alu_dt_nascimento;        
-        public Student(string Alu_nm, string Alu_nr_tele, string Alu_dt_nascimento)
+        private DateTime alu_dt_nascimento;        
+        public Student(string alu_nm, string alu_nr_tel, DateTime alu_dt_nascimento)
         {
-            this.FirstName = Alu_nm;
-            this.LastName = Alu_nr_tele;
-            this.Adress = Alu_dt_nascimento;
+            this.Alu_nm = alu_nm;
+            this.Alu_nr_tel = alu_nr_tel;
+            this.Alu_dt_nascimento = alu_dt_nascimento;
         }
 
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Adress { get; set; }
+        public string Alu_nm { get => alu_nm; set => alu_nm = value; }
+        public string Alu_nr_tel { get => alu_nr_tel; set => alu_nr_tel = value; }
+        public DateTime Alu_dt_nascimento { get => alu_dt_nascimento; set => alu_dt_nascimento = value; }
     }
 }

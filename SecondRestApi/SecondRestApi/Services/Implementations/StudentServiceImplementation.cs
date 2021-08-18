@@ -15,12 +15,63 @@ namespace SecondRestApi.Services.Implementations
 
         public Student Create(Student student)
         {
+            string conString = "User Id=SYSTEM;Password=257729;Data Source=localhost:1521/xe;";
+            using (OracleConnection con = new OracleConnection(conString))
+            {
+                using (OracleCommand cmd = con.CreateCommand())
+                {
+                    try
+                    {
+                        OpenConnectionDataBase(con);
+
+                        cmd.CommandText = "insertStudent";
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.Add("name", student.Alu_nm).Direction = ParameterDirection.Input;
+                        cmd.Parameters.Add("tele", student.Alu_nr_tel).Direction = ParameterDirection.Input;
+                        cmd.Parameters.Add("data", student.Alu_dt_nascimento).Direction = ParameterDirection.Input;
+
+                        cmd.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                    finally
+                    {
+                        CloseConnectionDataBase(con);
+                    }
+                }
+            }
             return student;
         }
 
-        public void Delete(long id)
+        public void Delete(String name)
         {
+            string conString = "User Id=SYSTEM;Password=257729;Data Source=localhost:1521/xe;";
+            using (OracleConnection con = new OracleConnection(conString))
+            {
+                using (OracleCommand cmd = con.CreateCommand())
+                {
+                    try
+                    {
+                        OpenConnectionDataBase(con);
 
+                        cmd.CommandText = "deleteStudent";
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.Add("name", name).Direction = ParameterDirection.Input;
+                        
+                        cmd.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                    finally
+                    {
+                        CloseConnectionDataBase(con);
+                    }
+                }
+            }
         }
 
         public List<Student> FindAll()
@@ -36,14 +87,14 @@ namespace SecondRestApi.Services.Implementations
                     {
                         OpenConnectionDataBase(con);
 
-                        cmd.CommandText = "student";
+                        cmd.CommandText = "addStudent";
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.Add("cur", OracleDbType.RefCursor).Direction = ParameterDirection.Output;
 
                         OracleDataReader reader = cmd.ExecuteReader();
                         while (reader.Read())
                         {
-                            var student = new Student(reader.GetString(0), reader.GetString(1), reader.GetString(2));
+                            var student = new Student(reader.GetString(0), reader.GetString(1), DateTime.Parse(reader.GetString(2)));
                             studentList.Add(student);
                         }
                         reader.Dispose();
@@ -74,21 +125,34 @@ namespace SecondRestApi.Services.Implementations
 
         public Student Update(Student student)
         {
-            return student;
-        }
-        //private Person MockPerson(int i)
-        //{
-        //    return new Person
-        //    {
-        //        FirstName = "Person Name" + i,
-        //        LastName = "Person LastName" + i,
-        //        Adress = "Some Adress" + i,
-        //    };
-        //}
+            string conString = "User Id=SYSTEM;Password=257729;Data Source=localhost:1521/xe;";
+            using (OracleConnection con = new OracleConnection(conString))
+            {
+                using (OracleCommand cmd = con.CreateCommand())
+                {
+                    try
+                    {
+                        OpenConnectionDataBase(con);
 
-        private long IncrementAndGet()
-        {
-            return Interlocked.Increment(ref count);
+                        cmd.CommandText = "updateStudent";
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.Add("name", student.Alu_nm).Direction = ParameterDirection.Input;
+                        cmd.Parameters.Add("tele", student.Alu_nr_tel).Direction = ParameterDirection.Input;
+                        cmd.Parameters.Add("data", student.Alu_dt_nascimento).Direction = ParameterDirection.Input;
+
+                        cmd.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                    finally
+                    {
+                        CloseConnectionDataBase(con);
+                    }
+                }
+            }
+            return student;
         }
 
         void OpenConnectionDataBase(OracleConnection connection)

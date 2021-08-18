@@ -21,20 +21,13 @@ namespace SecondRestApi.Controllers
             _logger = logger;
             _studentService = studentService;
         }
+        
 
         [HttpGet]
         public IActionResult Get()
         {
             return Ok(_studentService.FindAll());
         }
-
-        //[HttpGet("{id}")]
-        //public IActionResult Get(long id)
-        //{
-        //    var person; //= _personService.FindById(id);
-        //    if (person == null) return NotFound();
-        //    return Ok(person);
-        //}
 
         [HttpPost]
         public IActionResult Post([FromBody] Student student)
@@ -50,10 +43,10 @@ namespace SecondRestApi.Controllers
             return Ok(_studentService.Update(student));
         }
 
-        [HttpDelete("{id}")]
-        public IActionResult Delete(long id)
+        [HttpDelete("{name}")]
+        public IActionResult Delete(string name)
         {
-            _studentService.Delete(id);
+            _studentService.Delete(name);
             return NoContent();
         }
     }
