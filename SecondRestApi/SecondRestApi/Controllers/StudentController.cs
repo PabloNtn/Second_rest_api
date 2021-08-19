@@ -41,10 +41,10 @@ namespace SecondRestApi.Controllers
             return Ok(_studentBusiness.Update(student));
         }
 
-        [HttpDelete("{name}")]
-        public IActionResult Delete(string name)
+        [HttpDelete("{id}")]
+        public IActionResult Delete(long id)
         {
-            _studentBusiness.Delete(name);
+            _studentBusiness.Delete(id);
             return NoContent();
         }
     }

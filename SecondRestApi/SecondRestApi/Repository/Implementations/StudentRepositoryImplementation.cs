@@ -8,6 +8,7 @@ namespace SecondRestApi.Repository.Implementations
 {
     public class StudentRepositoryImplementation : IStudentRepository
     {
+
         public List<Student> FindAll()
         {
             List<Student> studentList = new();
@@ -28,7 +29,11 @@ namespace SecondRestApi.Repository.Implementations
                         OracleDataReader reader = cmd.ExecuteReader();
                         while (reader.Read())
                         {
-                            var student = new Student(reader.GetString(0), reader.GetString(1), DateTime.Parse(reader.GetString(2)));
+                            var student = new Student(
+                               reader.GetString(0),
+                               reader.GetString(1),
+                               DateTime.Parse(reader.GetString(2)),
+                               int.Parse(reader.GetString(3)));
                             studentList.Add(student);
                         }
                         reader.Dispose();
@@ -89,7 +94,7 @@ namespace SecondRestApi.Repository.Implementations
             return student;
         }
 
-        public void Delete(String name)
+        public void Delete(long id)
         {
             string conString = "User Id=SYSTEM;Password=257729;Data Source=localhost:1521/xe;";
             using (OracleConnection con = new OracleConnection(conString))
@@ -102,7 +107,7 @@ namespace SecondRestApi.Repository.Implementations
 
                         cmd.CommandText = "deleteStudent";
                         cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.Add("name", name).Direction = ParameterDirection.Input;
+                        cmd.Parameters.Add("id", id).Direction = ParameterDirection.Input;
 
                         cmd.ExecuteNonQuery();
                     }
@@ -131,6 +136,7 @@ namespace SecondRestApi.Repository.Implementations
 
                         cmd.CommandText = "updateStudent";
                         cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.Add("id", student.Alu_id).Direction = ParameterDirection.Input;
                         cmd.Parameters.Add("name", student.Alu_nm).Direction = ParameterDirection.Input;
                         cmd.Parameters.Add("tele", student.Alu_nr_tel).Direction = ParameterDirection.Input;
                         cmd.Parameters.Add("data", student.Alu_dt_nascimento).Direction = ParameterDirection.Input;
