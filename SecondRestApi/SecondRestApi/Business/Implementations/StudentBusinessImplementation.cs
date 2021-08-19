@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using Oracle.ManagedDataAccess.Client;
 using System.Data;
 
-namespace SecondRestApi.Services.Implementations
+namespace SecondRestApi.Business.Implementations
 {
-    public class StudentServiceImplementation : IStudentService
+    public class StudentBusinessImplementation : IStudentBusiness
     {
         public List<Student> FindAll()
         {
