@@ -1,18 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using SecondRestApi.Services;     
-using SecondRestApi.Services.Implementations;
+using SecondRestApi.Business;
+using SecondRestApi.Business.Implementations;
+using SecondRestApi.Repository;
+using SecondRestApi.Repository.Implementations;
 
 namespace SecondRestApi
 {
@@ -32,8 +27,11 @@ namespace SecondRestApi
 
             //versioning api
             services.AddApiVersioning();
+
             //dependency injection
-            services.AddScoped<IStudentService, StudentServiceImplementation>();
+            services.AddScoped<IStudentBusiness, StudentBusinessImplementation>();
+            services.AddScoped<IStudentRepository, StudentRepositoryImplementation>();
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "SecondRestApi", Version = "v1" });
