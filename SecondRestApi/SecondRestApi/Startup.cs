@@ -29,8 +29,11 @@ namespace SecondRestApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            //versioning api
+            services.AddApiVersioning();
             //dependency injection
-            services.AddScoped<IPersonService, PersonServiceImplementation>();
+            services.AddScoped<IStudentService, StudentServiceImplementation>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "SecondRestApi", Version = "v1" });
