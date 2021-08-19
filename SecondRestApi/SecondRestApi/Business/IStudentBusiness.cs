@@ -1,9 +1,9 @@
 ﻿using SecondRestApi.Model;
 using System.Collections.Generic;
 
-namespace SecondRestApi.Services.Implementations
+namespace SecondRestApi.Business
 {
-    public interface IStudentService
+    public interface IStudentBusiness
     {
         Student Create(Student student);
         //Person FindById(long id);
