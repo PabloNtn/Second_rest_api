@@ -29,6 +29,9 @@ namespace SecondRestApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            //versioning api
+            services.AddApiVersioning();
             //dependency injection
             services.AddScoped<IStudentService, StudentServiceImplementation>();
             services.AddSwaggerGen(c =>

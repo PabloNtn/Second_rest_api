@@ -9,8 +9,9 @@ using SecondRestApi.Services.Implementations;
 
 namespace SecondRestApi.Controllers
 {
+    [ApiVersion("1")]
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/[controller]/v{version:apiVersion}")]
     public class StudentController : ControllerBase
     {
         private readonly ILogger<StudentController> _logger;

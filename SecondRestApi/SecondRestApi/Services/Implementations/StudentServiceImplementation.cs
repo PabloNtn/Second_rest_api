@@ -1,9 +1,6 @@
 ﻿using SecondRestApi.Model;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Oracle.ManagedDataAccess.Client;
 using System.Data;
 
@@ -11,69 +8,6 @@ namespace SecondRestApi.Services.Implementations
 {
     public class StudentServiceImplementation : IStudentService
     {
-        private volatile int count;
-
-        public Student Create(Student student)
-        {
-            string conString = "User Id=SYSTEM;Password=257729;Data Source=localhost:1521/xe;";
-            using (OracleConnection con = new OracleConnection(conString))
-            {
-                using (OracleCommand cmd = con.CreateCommand())
-                {
-                    try
-                    {
-                        OpenConnectionDataBase(con);
-
-                        cmd.CommandText = "insertStudent";
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.Add("name", student.Alu_nm).Direction = ParameterDirection.Input;
-                        cmd.Parameters.Add("tele", student.Alu_nr_tel).Direction = ParameterDirection.Input;
-                        cmd.Parameters.Add("data", student.Alu_dt_nascimento).Direction = ParameterDirection.Input;
-
-                        cmd.ExecuteNonQuery();
-                    }
-                    catch (Exception ex)
-                    {
-
-                    }
-                    finally
-                    {
-                        CloseConnectionDataBase(con);
-                    }
-                }
-            }
-            return student;
-        }
-
-        public void Delete(String name)
-        {
-            string conString = "User Id=SYSTEM;Password=257729;Data Source=localhost:1521/xe;";
-            using (OracleConnection con = new OracleConnection(conString))
-            {
-                using (OracleCommand cmd = con.CreateCommand())
-                {
-                    try
-                    {
-                        OpenConnectionDataBase(con);
-
-                        cmd.CommandText = "deleteStudent";
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.Add("name", name).Direction = ParameterDirection.Input;
-                        
-                        cmd.ExecuteNonQuery();
-                    }
-                    catch (Exception ex)
-                    {
-
-                    }
-                    finally
-                    {
-                        CloseConnectionDataBase(con);
-                    }
-                }
-            }
-        }
-
         public List<Student> FindAll()
         {
             List<Student> studentList = new();
@@ -85,7 +19,7 @@ namespace SecondRestApi.Services.Implementations
                 {
                     try
                     {
-                        OpenConnectionDataBase(con);
+                        ControllerConnectionDataBase(con);
 
                         cmd.CommandText = "addStudent";
                         cmd.CommandType = CommandType.StoredProcedure;
@@ -105,7 +39,7 @@ namespace SecondRestApi.Services.Implementations
                     }
                     finally
                     {
-                        CloseConnectionDataBase(con);
+                        ControllerConnectionDataBase(con);
                     }
                 }
             }
@@ -123,6 +57,67 @@ namespace SecondRestApi.Services.Implementations
         //    //};
         //}
 
+        public Student Create(Student student)
+        {
+            string conString = "User Id=SYSTEM;Password=257729;Data Source=localhost:1521/xe;";
+            using (OracleConnection con = new OracleConnection(conString))
+            {
+                using (OracleCommand cmd = con.CreateCommand())
+                {
+                    try
+                    {
+                        ControllerConnectionDataBase(con);
+
+                        cmd.CommandText = "insertStudent";
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.Add("name", student.Alu_nm).Direction = ParameterDirection.Input;
+                        cmd.Parameters.Add("tele", student.Alu_nr_tel).Direction = ParameterDirection.Input;
+                        cmd.Parameters.Add("data", student.Alu_dt_nascimento).Direction = ParameterDirection.Input;
+
+                        cmd.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                    finally
+                    {
+                        ControllerConnectionDataBase(con);
+                    }
+                }
+            }
+            return student;
+        }
+
+        public void Delete(String name)
+        {
+            string conString = "User Id=SYSTEM;Password=257729;Data Source=localhost:1521/xe;";
+            using (OracleConnection con = new OracleConnection(conString))
+            {
+                using (OracleCommand cmd = con.CreateCommand())
+                {
+                    try
+                    {
+                        ControllerConnectionDataBase(con);
+
+                        cmd.CommandText = "deleteStudent";
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.Add("name", name).Direction = ParameterDirection.Input;
+
+                        cmd.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                    finally
+                    {
+                        ControllerConnectionDataBase(con);
+                    }
+                }
+            }
+        }
+
         public Student Update(Student student)
         {
             string conString = "User Id=SYSTEM;Password=257729;Data Source=localhost:1521/xe;";
@@ -132,7 +127,7 @@ namespace SecondRestApi.Services.Implementations
                 {
                     try
                     {
-                        OpenConnectionDataBase(con);
+                        ControllerConnectionDataBase(con);
 
                         cmd.CommandText = "updateStudent";
                         cmd.CommandType = CommandType.StoredProcedure;
@@ -148,29 +143,21 @@ namespace SecondRestApi.Services.Implementations
                     }
                     finally
                     {
-                        CloseConnectionDataBase(con);
+                        ControllerConnectionDataBase(con);
                     }
                 }
             }
             return student;
         }
 
-        void OpenConnectionDataBase(OracleConnection connection)
+        void ControllerConnectionDataBase(OracleConnection connection)
         {
             try
             {
-                connection.Open();
-            }
-            catch (Exception ex)
-            {
-
-            }
-        }
-        void CloseConnectionDataBase(OracleConnection connection)
-        {
-            try
-            {
-                connection.Close();
+                if (connection.State == ConnectionState.Open)
+                    connection.Close();
+                else
+                    connection.Open();
             }
             catch (Exception ex)
             {
