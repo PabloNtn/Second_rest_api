@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using SecondRestApi.Business;
 using SecondRestApi.Model;
 
-
 namespace SecondRestApi.Controllers
 {
     [ApiVersion("1")]
@@ -41,10 +40,10 @@ namespace SecondRestApi.Controllers
             return Ok(_studentBusiness.Update(student));
         }
 
-        [HttpDelete("{name}")]
-        public IActionResult Delete(string name)
+        [HttpDelete("{id}")]
+        public IActionResult Delete(long id)
         {
-            _studentBusiness.Delete(name);
+            _studentBusiness.Delete(id);
             return NoContent();
         }
     }
