@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using SecondRestApi.Business;
 using SecondRestApi.Model;
 
-
 namespace SecondRestApi.Controllers
 {
     [ApiVersion("1")]

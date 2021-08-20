@@ -31,6 +31,7 @@ namespace SecondRestApi
             //dependency injection
             services.AddScoped<IStudentBusiness, StudentBusinessImplementation>();
             services.AddScoped<IStudentRepository, StudentRepositoryImplementation>();
+            services.AddScoped<IDirectorShipBusiness, DirectorShipBusinessImplementation>();
 
             services.AddSwaggerGen(c =>
             {
