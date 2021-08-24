@@ -1,14 +1,15 @@
 ﻿using SecondRestApi.Model;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
 
 namespace SecondRestApi.Business
 {
     public interface IStudentBusiness
     {
-        Student Create(Student student);
-        //Person FindById(long id);
-        List<Student> FindAll();
+        ActionResult<Student> Create(Student student);
+        ActionResult<Student> FindById(long id);
+        ActionResult<List<Student>> FindAll();
         void Delete(long id);
-        Student Update(Student student);
+        ActionResult<Student> Update(Student student);
     }
 }

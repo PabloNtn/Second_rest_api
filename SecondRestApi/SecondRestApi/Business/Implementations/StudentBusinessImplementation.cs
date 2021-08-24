@@ -1,173 +1,44 @@
 ﻿using SecondRestApi.Model;
-using System;
+using SecondRestApi.Repository;
 using System.Collections.Generic;
-using Oracle.ManagedDataAccess.Client;
-using System.Data;
+using Microsoft.AspNetCore.Mvc;
 
 namespace SecondRestApi.Business.Implementations
 {
     public class StudentBusinessImplementation : IStudentBusiness
     {
-        public List<Student> FindAll()
+
+        private IStudentRepository _StudentRepository;
+
+
+        public StudentBusinessImplementation(IStudentRepository StudentRepository)
         {
-            List<Student> studentList = new();
-
-            string conString = "User Id=SYSTEM;Password=257729;Data Source=localhost:1521/xe;";
-            using (OracleConnection con = new OracleConnection(conString))
-            {
-                using (OracleCommand cmd = con.CreateCommand())
-                {
-                    try
-                    {
-                        ControllerConnectionDataBase(con);
-
-                        cmd.CommandText = "selectStudent";
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.Add("cur", OracleDbType.RefCursor).Direction = ParameterDirection.Output;
-
-                        OracleDataReader reader = cmd.ExecuteReader();
-                        while (reader.Read())
-                        {
-                            var student = new Student(
-                                reader.GetString(0),
-                                reader.GetString(1),
-                                DateTime.Parse(reader.GetString(2)),
-                                int.Parse(reader.GetString(3)));
-                            studentList.Add(student);
-                        }
-                        reader.Dispose();
-                    }
-                    catch (Exception ex)
-                    {
-
-                    }
-                    finally
-                    {
-                        ControllerConnectionDataBase(con);
-                    }
-                }
-            }
-            return studentList;
+            _StudentRepository = StudentRepository;
         }
 
-        //public Person FindById(long id)
-        //{
-
-        //    //return new Person
-        //    //{
-        //    //    FirstName = "Pablo",
-        //    //    LastName = "Monteiro",
-        //    //    Adress = "Rua catatau",
-        //    //};
-        //}
-
-        public Student Create(Student student)
+        public ActionResult<List<Student>> FindAll()
         {
-            string conString = "User Id=SYSTEM;Password=257729;Data Source=localhost:1521/xe;";
-            using (OracleConnection con = new OracleConnection(conString))
-            {
-                using (OracleCommand cmd = con.CreateCommand())
-                {
-                    try
-                    {
-                        ControllerConnectionDataBase(con);
+            return _StudentRepository.FindAll();
+        }
 
-                        cmd.CommandText = "insertStudent";
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.Add("name", student.Alu_nm).Direction = ParameterDirection.Input;
-                        cmd.Parameters.Add("tele", student.Alu_nr_tel).Direction = ParameterDirection.Input;
-                        cmd.Parameters.Add("data", student.Alu_dt_nascimento).Direction = ParameterDirection.Input;
+        public ActionResult<Student> FindById(long id)
+        {
+            return _StudentRepository.FindById(id);
+        }
 
-                        cmd.ExecuteNonQuery();
-                    }
-                    catch (Exception ex)
-                    {
-
-                    }
-                    finally
-                    {
-                        ControllerConnectionDataBase(con);
-                    }
-                }
-            }
-            return student;
+        public ActionResult<Student> Create(Student student)
+        {
+            return _StudentRepository.Create(student);
         }
 
         public void Delete(long id)
         {
-            string conString = "User Id=SYSTEM;Password=257729;Data Source=localhost:1521/xe;";
-            using (OracleConnection con = new OracleConnection(conString))
-            {
-                using (OracleCommand cmd = con.CreateCommand())
-                {
-                    try
-                    {
-                        ControllerConnectionDataBase(con);
-
-                        cmd.CommandText = "deleteStudent";
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.Add("id", id).Direction = ParameterDirection.Input;
-
-                        cmd.ExecuteNonQuery();
-                    }
-                    catch (Exception ex)
-                    {
-
-                    }
-                    finally
-                    {
-                        ControllerConnectionDataBase(con);
-                    }
-                }
-            }
+            _StudentRepository.Delete(id);
         }
 
-        public Student Update(Student student)
+        public ActionResult<Student> Update(Student student)
         {
-            string conString = "User Id=SYSTEM;Password=257729;Data Source=localhost:1521/xe;";
-            using (OracleConnection con = new OracleConnection(conString))
-            {
-                using (OracleCommand cmd = con.CreateCommand())
-                {
-                    try
-                    {
-                        ControllerConnectionDataBase(con);
-
-                        cmd.CommandText = "updateStudent";
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.Add("id", student.Alu_id).Direction = ParameterDirection.Input;
-                        cmd.Parameters.Add("name", student.Alu_nm).Direction = ParameterDirection.Input;
-                        cmd.Parameters.Add("tele", student.Alu_nr_tel).Direction = ParameterDirection.Input;
-                        cmd.Parameters.Add("data", student.Alu_dt_nascimento).Direction = ParameterDirection.Input;
-
-                        cmd.ExecuteNonQuery();
-                    }
-                    catch (Exception ex)
-                    {
-
-                    }
-                    finally
-                    {
-                        ControllerConnectionDataBase(con);
-                    }
-                }
-            }
-            return student;
-        }
-
-        void ControllerConnectionDataBase(OracleConnection connection)
-        {
-            try
-            {
-                if (connection.State == ConnectionState.Open)
-                    connection.Close();
-                else
-                    connection.Open();
-            }
-            catch (Exception ex)
-            {
-
-            }
+            return _StudentRepository.Update(student);
         }
     }
 }

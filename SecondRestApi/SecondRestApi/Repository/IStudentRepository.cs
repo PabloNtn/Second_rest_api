@@ -6,7 +6,7 @@ namespace SecondRestApi.Repository
     public interface IStudentRepository
     {
         Student Create(Student student);
-        //Person FindById(long id);
+        Student FindById(long id);
         List<Student> FindAll();
         void Delete(long id);
         Student Update(Student student);
