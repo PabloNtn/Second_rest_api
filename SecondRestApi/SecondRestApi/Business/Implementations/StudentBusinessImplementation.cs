@@ -2,6 +2,9 @@
 using SecondRestApi.Repository;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace SecondRestApi.Business.Implementations
 {
@@ -23,22 +26,101 @@ namespace SecondRestApi.Business.Implementations
 
         public ActionResult<Student> FindById(long id)
         {
-            return _StudentRepository.FindById(id);
+            int numero;
+            var chamada = _StudentRepository.FindById(id);
+
+            if (chamada == null)
+            {
+                return new NotFoundObjectResult("usuario nao encontrado");
+            }
+            else
+            if (id < 0 || !int.TryParse(id.ToString(), out numero))
+            {
+                return new BadRequestObjectResult("Id invalido");
+            }
+            else
+            {
+                return chamada;
+            }
         }
 
         public ActionResult<Student> Create(Student student)
         {
+
+            var mensagemErro = TratamentoErroParaDadosEstudante(student);
+            if (mensagemErro != null)
+            {
+                return new BadRequestObjectResult(mensagemErro);
+            }
             return _StudentRepository.Create(student);
         }
 
-        public void Delete(long id)
+        public ActionResult<int> Delete(long id)
         {
-            _StudentRepository.Delete(id);
+            int numero;
+
+            if (id < 0 || !int.TryParse(id.ToString(), out numero))
+            {
+                return new BadRequestObjectResult("Id invalido");
+            }
+            return _StudentRepository.Delete(id);
         }
 
         public ActionResult<Student> Update(Student student)
         {
+            var mensagemErro = TratamentoErroParaDadosEstudante(student);
+            if (mensagemErro != null)
+            {
+                return new BadRequestObjectResult(mensagemErro);
+            }
             return _StudentRepository.Update(student);
+        }
+
+        public string TratamentoErroParaDadosEstudante(Student student)
+        {
+            double numero = 0;
+            DateTime valorParaConversao;
+            string DataString = student.Alu_dt_nascimento.ToString();
+            var testeConcatenacaoData = DateTime.TryParseExact(DataString,
+                    "dd/MM/yyyy HH:mm:ss",
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out valorParaConversao);
+
+            return student.Alu_nm == "" ?
+
+                 "No campo nome digite algum valor" :
+
+            double.TryParse(student.Alu_nm, out numero) ?
+
+                 "No campo nome digite letras, nao numeros" :
+
+            student.Alu_nm.Length < 3 || student.Alu_nm.Length > 80 ?
+
+                 "No campo nome digite um nome com mais de 3 letras e menos de 80 letras" :
+
+            student.Alu_nr_tel == "" ?
+
+                 "No campo telefone digite algum valor" :
+
+            !double.TryParse(student.Alu_nr_tel, out numero) ?
+
+                 "No campo telefone digite numeros, nao letras" :
+
+            student.Alu_nr_tel.Length != 11 ?
+
+                 "O telefone precisa de 11 digitos" :
+
+            DataString == "" ?
+
+                 "No campo data digite algum valor" :
+
+            !testeConcatenacaoData ?
+
+                 "Digite uma data valida" :
+
+             null;
+
         }
     }
 }

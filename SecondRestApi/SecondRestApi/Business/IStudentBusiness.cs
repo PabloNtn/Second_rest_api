@@ -9,7 +9,7 @@ namespace SecondRestApi.Business
         ActionResult<Student> Create(Student student);
         ActionResult<Student> FindById(long id);
         ActionResult<List<Student>> FindAll();
-        void Delete(long id);
+        ActionResult<int> Delete(long id);
         ActionResult<Student> Update(Student student);
     }
 }
