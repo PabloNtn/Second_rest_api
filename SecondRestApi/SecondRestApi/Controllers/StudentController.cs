@@ -38,7 +38,7 @@ namespace SecondRestApi.Controllers
         [HttpPost]
         public async Task<ActionResult<Student>> Post([FromBody] Student student)
         {
-            return _studentBusiness.Update(student);
+            return _studentBusiness.Create(student);
 
         }
 
@@ -49,9 +49,9 @@ namespace SecondRestApi.Controllers
         }
 
         [HttpDelete("{id}")]
-        public void Delete(long id)
+        public ActionResult<int> Delete(long id)
         {
-            _studentBusiness.Delete(id);
+            return _studentBusiness.Delete(id);
         }
     }
 

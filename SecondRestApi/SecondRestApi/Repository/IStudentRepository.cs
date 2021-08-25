@@ -8,7 +8,7 @@ namespace SecondRestApi.Repository
         Student Create(Student student);
         Student FindById(long id);
         List<Student> FindAll();
-        void Delete(long id);
+        int Delete(long id);
         Student Update(Student student);
     }
 }

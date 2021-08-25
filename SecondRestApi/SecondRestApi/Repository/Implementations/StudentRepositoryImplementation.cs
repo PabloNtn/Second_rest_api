@@ -129,7 +129,7 @@ namespace SecondRestApi.Repository.Implementations
             return student;
         }
 
-        public void Delete(long id)
+        public int Delete(long id)
         {
             string conString = "User Id=SYSTEM;Password=257729;Data Source=localhost:1521/xe;";
             using (OracleConnection con = new OracleConnection(conString))
@@ -157,6 +157,7 @@ namespace SecondRestApi.Repository.Implementations
                     }
                 }
             }
+            return Convert.ToInt32(id);
         }
 
         public Student Update(Student student)
