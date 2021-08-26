@@ -30,7 +30,9 @@ namespace SecondRestApi.Business.Implementations
                         {
                             var director = new DirectorShip(
                                 int.Parse(reader.GetString(0)),
-                                reader.GetString(1));
+                                reader.GetString(1),
+                                reader.GetString(2),
+                                reader.GetString(3));
                             directorList.Add(director);
                         }
                         reader.Dispose();
@@ -60,7 +62,7 @@ namespace SecondRestApi.Business.Implementations
 
                         cmd.CommandText = "insertDirector";
                         cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.Add("name", director.Dir_name).Direction = ParameterDirection.Input;
+                        cmd.Parameters.Add("name", director.Dir_userName).Direction = ParameterDirection.Input;
 
                         cmd.ExecuteNonQuery();
                     }
