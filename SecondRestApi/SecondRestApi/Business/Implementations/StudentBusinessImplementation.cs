@@ -1,168 +1,126 @@
 ﻿using SecondRestApi.Model;
-using System;
+using SecondRestApi.Repository;
 using System.Collections.Generic;
-using Oracle.ManagedDataAccess.Client;
-using System.Data;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace SecondRestApi.Business.Implementations
 {
     public class StudentBusinessImplementation : IStudentBusiness
     {
-        public List<Student> FindAll()
+
+        private IStudentRepository _StudentRepository;
+
+
+        public StudentBusinessImplementation(IStudentRepository StudentRepository)
         {
-            List<Student> studentList = new();
-
-            string conString = "User Id=SYSTEM;Password=257729;Data Source=localhost:1521/xe;";
-            using (OracleConnection con = new OracleConnection(conString))
-            {
-                using (OracleCommand cmd = con.CreateCommand())
-                {
-                    try
-                    {
-                        ControllerConnectionDataBase(con);
-
-                        cmd.CommandText = "addStudent";
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.Add("cur", OracleDbType.RefCursor).Direction = ParameterDirection.Output;
-
-                        OracleDataReader reader = cmd.ExecuteReader();
-                        while (reader.Read())
-                        {
-                            var student = new Student(reader.GetString(0), reader.GetString(1), DateTime.Parse(reader.GetString(2)));
-                            studentList.Add(student);
-                        }
-                        reader.Dispose();
-                    }
-                    catch (Exception ex)
-                    {
-
-                    }
-                    finally
-                    {
-                        ControllerConnectionDataBase(con);
-                    }
-                }
-            }
-            return studentList;
+            _StudentRepository = StudentRepository;
         }
 
-        //public Person FindById(long id)
-        //{
-
-        //    //return new Person
-        //    //{
-        //    //    FirstName = "Pablo",
-        //    //    LastName = "Monteiro",
-        //    //    Adress = "Rua catatau",
-        //    //};
-        //}
-
-        public Student Create(Student student)
+        public ActionResult<List<Student>> FindAll()
         {
-            string conString = "User Id=SYSTEM;Password=257729;Data Source=localhost:1521/xe;";
-            using (OracleConnection con = new OracleConnection(conString))
-            {
-                using (OracleCommand cmd = con.CreateCommand())
-                {
-                    try
-                    {
-                        ControllerConnectionDataBase(con);
-
-                        cmd.CommandText = "insertStudent";
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.Add("name", student.Alu_nm).Direction = ParameterDirection.Input;
-                        cmd.Parameters.Add("tele", student.Alu_nr_tel).Direction = ParameterDirection.Input;
-                        cmd.Parameters.Add("data", student.Alu_dt_nascimento).Direction = ParameterDirection.Input;
-
-                        cmd.ExecuteNonQuery();
-                    }
-                    catch (Exception ex)
-                    {
-
-                    }
-                    finally
-                    {
-                        ControllerConnectionDataBase(con);
-                    }
-                }
-            }
-            return student;
+            return _StudentRepository.FindAll();
         }
 
-        public void Delete(String name)
+        public ActionResult<Student> FindById(long id)
         {
-            string conString = "User Id=SYSTEM;Password=257729;Data Source=localhost:1521/xe;";
-            using (OracleConnection con = new OracleConnection(conString))
+            int numero;
+            var chamada = _StudentRepository.FindById(id);
+
+            if (chamada == null)
             {
-                using (OracleCommand cmd = con.CreateCommand())
-                {
-                    try
-                    {
-                        ControllerConnectionDataBase(con);
-
-                        cmd.CommandText = "deleteStudent";
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.Add("name", name).Direction = ParameterDirection.Input;
-
-                        cmd.ExecuteNonQuery();
-                    }
-                    catch (Exception ex)
-                    {
-
-                    }
-                    finally
-                    {
-                        ControllerConnectionDataBase(con);
-                    }
-                }
+                return new NotFoundObjectResult("usuario nao encontrado");
+            }
+            else
+            if (id < 0 || !int.TryParse(id.ToString(), out numero))
+            {
+                return new BadRequestObjectResult("Id invalido");
+            }
+            else
+            {
+                return chamada;
             }
         }
 
-        public Student Update(Student student)
+        public ActionResult<Student> Create(Student student)
         {
-            string conString = "User Id=SYSTEM;Password=257729;Data Source=localhost:1521/xe;";
-            using (OracleConnection con = new OracleConnection(conString))
+
+            var mensagemErro = TratamentoErroParaDadosEstudante(student);
+            if (mensagemErro != null)
             {
-                using (OracleCommand cmd = con.CreateCommand())
-                {
-                    try
-                    {
-                        ControllerConnectionDataBase(con);
-
-                        cmd.CommandText = "updateStudent";
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.Add("name", student.Alu_nm).Direction = ParameterDirection.Input;
-                        cmd.Parameters.Add("tele", student.Alu_nr_tel).Direction = ParameterDirection.Input;
-                        cmd.Parameters.Add("data", student.Alu_dt_nascimento).Direction = ParameterDirection.Input;
-
-                        cmd.ExecuteNonQuery();
-                    }
-                    catch (Exception ex)
-                    {
-
-                    }
-                    finally
-                    {
-                        ControllerConnectionDataBase(con);
-                    }
-                }
+                return new BadRequestObjectResult(mensagemErro);
             }
-            return student;
+            return _StudentRepository.Create(student);
         }
 
-        void ControllerConnectionDataBase(OracleConnection connection)
+        public ActionResult<int> Delete(long id)
         {
-            try
-            {
-                if (connection.State == ConnectionState.Open)
-                    connection.Close();
-                else
-                    connection.Open();
-            }
-            catch (Exception ex)
-            {
+            int numero;
 
+            if (id < 0 || !int.TryParse(id.ToString(), out numero))
+            {
+                return new BadRequestObjectResult("Id invalido");
             }
+            return _StudentRepository.Delete(id);
+        }
+
+        public ActionResult<Student> Update(Student student)
+        {
+            var mensagemErro = TratamentoErroParaDadosEstudante(student);
+            if (mensagemErro != null)
+            {
+                return new BadRequestObjectResult(mensagemErro);
+            }
+            return _StudentRepository.Update(student);
+        }
+
+        public string TratamentoErroParaDadosEstudante(Student student)
+        {
+            double numero = 0;
+            DateTime valorParaConversao;
+            string DataString = student.Alu_dt_nascimento.ToString();
+            var testeConcatenacaoData = DateTime.TryParseExact(DataString,
+                    "dd/MM/yyyy HH:mm:ss",
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out valorParaConversao);
+
+            return student.Alu_nm == "" ?
+
+                 "No campo nome digite algum valor" :
+
+            double.TryParse(student.Alu_nm, out numero) ?
+
+                 "No campo nome digite letras, nao numeros" :
+
+            student.Alu_nm.Length < 3 || student.Alu_nm.Length > 80 ?
+
+                 "No campo nome digite um nome com mais de 3 letras e menos de 80 letras" :
+
+            student.Alu_nr_tel == "" ?
+
+                 "No campo telefone digite algum valor" :
+
+            !double.TryParse(student.Alu_nr_tel, out numero) ?
+
+                 "No campo telefone digite numeros, nao letras" :
+
+            student.Alu_nr_tel.Length != 11 ?
+
+                 "O telefone precisa de 11 digitos" :
+
+            DataString == "" ?
+
+                 "No campo data digite algum valor" :
+
+            !testeConcatenacaoData ?
+
+                 "Digite uma data valida" :
+
+             null;
+
         }
     }
 }

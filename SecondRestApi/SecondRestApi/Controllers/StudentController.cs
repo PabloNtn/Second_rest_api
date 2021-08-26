@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SecondRestApi.Business;
+using SecondRestApi.Controllers;
 using SecondRestApi.Model;
-
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SecondRestApi.Controllers
 {
@@ -14,38 +16,57 @@ namespace SecondRestApi.Controllers
         private readonly ILogger<StudentController> _logger;
         private IStudentBusiness _studentBusiness;
 
+
         public StudentController(ILogger<StudentController> logger, IStudentBusiness studentBusiness)
         {
             _logger = logger;
             _studentBusiness = studentBusiness;
         }
-        
 
         [HttpGet]
-        public IActionResult Get()
+        public async Task<ActionResult<List<Student>>> Get()
         {
-            return Ok(_studentBusiness.FindAll());
+            return _studentBusiness.FindAll();
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Student>> GetById(long id)
+        {
+            return _studentBusiness.FindById(id);
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] Student student)
+        public async Task<ActionResult<Student>> Post([FromBody] Student student)
         {
-            if (student == null) return BadRequest();
-            return Ok(_studentBusiness.Create(student));
+            return _studentBusiness.Create(student);
+
         }
 
         [HttpPut]
-        public IActionResult Put([FromBody] Student student)
+        public async Task<ActionResult<Student>> Put([FromBody] Student student)
         {
-            if (student == null) return BadRequest();
-            return Ok(_studentBusiness.Update(student));
+                return Ok(_studentBusiness.Update(student));
         }
 
-        [HttpDelete("{name}")]
-        public IActionResult Delete(string name)
+        [HttpDelete("{id}")]
+        public ActionResult<int> Delete(long id)
         {
-            _studentBusiness.Delete(name);
-            return NoContent();
+            return _studentBusiness.Delete(id);
+        }
+    }
+
+    [ApiVersion("2")]
+    [ApiController]
+    [Route("api/[controller]/v{version:apiVersion}")]
+    public class Student2Controller : ControllerBase
+    {
+        private readonly ILogger<StudentController> _logger;
+        private IStudentBusiness _studentBusiness;
+
+        public Student2Controller(ILogger<StudentController> logger, IStudentBusiness studentBusiness)
+        {
+            _logger = logger;
+            _studentBusiness = studentBusiness;
         }
     }
 }
