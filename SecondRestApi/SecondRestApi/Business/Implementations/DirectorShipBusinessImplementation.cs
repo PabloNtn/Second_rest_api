@@ -3,122 +3,103 @@ using System;
 using System.Collections.Generic;
 using Oracle.ManagedDataAccess.Client;
 using System.Data;
+using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 
 namespace SecondRestApi.Business.Implementations
 {
     public class DirectorShipBusinessImplementation : IDirectorShipBusiness
     {
+        private IDirectorShipRepository _directorShipRepository;
+
+        public DirectorShipBusinessImplementation(IDirectorShipRepository directorShipRepository)
+        {
+            _directorShipRepository = directorShipRepository;
+        }
+
         public List<DirectorShip> FindAll()
         {
-            List<DirectorShip> directorList = new();
-
-            string conString = "User Id=SYSTEM;Password=257729;Data Source=localhost:1521/xe;";
-            using (OracleConnection con = new OracleConnection(conString))
-            {
-                using (OracleCommand cmd = con.CreateCommand())
-                {
-                    try
-                    {
-                        ControllerConnectionDataBase(con);
-
-                        cmd.CommandText = "selectDirector";
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.Add("cur", OracleDbType.RefCursor).Direction = ParameterDirection.Output;
-
-                        OracleDataReader reader = cmd.ExecuteReader();
-                        while (reader.Read())
-                        {
-                            var director = new DirectorShip(
-                                int.Parse(reader.GetString(0)),
-                                reader.GetString(1),
-                                reader.GetString(2),
-                                reader.GetString(3));
-                            directorList.Add(director);
-                        }
-                        reader.Dispose();
-                    }
-                    catch (Exception ex)
-                    {
-
-                    }
-                    finally
-                    {
-                        ControllerConnectionDataBase(con);
-                    }
-                }
-            }
-            return directorList;
+            return _directorShipRepository.FindAll();
         }
-        public DirectorShip Create(DirectorShip director)
+
+        public ActionResult<DirectorShip> Create(DirectorShip director)
         {
-            string conString = "User Id=SYSTEM;Password=257729;Data Source=localhost:1521/xe;";
-            using (OracleConnection con = new OracleConnection(conString))
-            {
-                using (OracleCommand cmd = con.CreateCommand())
-                {
-                    try
-                    {
-                        ControllerConnectionDataBase(con);
+            var mensagemErro = TratamentoErroParaDadosDiretoria(director);
+            if (mensagemErro != null)
+                return new BadRequestObjectResult(mensagemErro);
 
-                        cmd.CommandText = "insertDirector";
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.Add("name", director.Dir_userName).Direction = ParameterDirection.Input;
+            mensagemErro = TratamentoErroParaID(director.Dir_id);
+            if (mensagemErro != null)
+                return new BadRequestObjectResult(mensagemErro);
 
-                        cmd.ExecuteNonQuery();
-                    }
-                    catch (Exception ex)
-                    {
-
-                    }
-                    finally
-                    {
-                        ControllerConnectionDataBase(con);
-                    }
-                }
-            }
-            return director;
+            return _directorShipRepository.Create(director);
         }
-        public void Delete(long id)
+
+        public ActionResult<int> Delete(long id)
         {
-            string conString = "User Id=SYSTEM;Password=257729;Data Source=localhost:1521/xe;";
-            using (OracleConnection con = new OracleConnection(conString))
-            {
-                using (OracleCommand cmd = con.CreateCommand())
-                {
-                    try
-                    {
-                        ControllerConnectionDataBase(con);
+            //verificacao ID
+            var mensagemErro = TratamentoErroParaID(id);
+            if (mensagemErro != null)
+                return new BadRequestObjectResult(mensagemErro);
 
-                        cmd.CommandText = "deleteDirector";
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.Add("id", id).Direction = ParameterDirection.Input;
-
-                        cmd.ExecuteNonQuery();
-                    }
-                    catch (Exception ex)
-                    {
-
-                    }
-                    finally
-                    {
-                        ControllerConnectionDataBase(con);
-                    }
-                }
-            }
+            //Verifica se foi apagado do banco
+            var result = _directorShipRepository.Delete(id);
+            if (result == null)
+                return new BadRequestObjectResult("Erro ao tentar deletar no banco de dados");
+            return Convert.ToInt32(id);
         }
-        void ControllerConnectionDataBase(OracleConnection connection)
-        {
-            try
-            {
-                if (connection.State == ConnectionState.Open)
-                    connection.Close();
-                else
-                    connection.Open();
-            }
-            catch (Exception ex)
-            {
 
-            }
+        public DirectorShip FindByUserName(string username, string password)
+        {
+            //var chamada = _directorShipRepository.FindByUserName(username, password);
+            //if (chamada == null)
+            //    return new NotFoundObjectResult("usuario nao encontrado");
+            return _directorShipRepository.FindByUserName(username, password);
+        }
+
+        public string TratamentoErroParaDadosDiretoria(DirectorShip director)
+        {
+            double numero = 0;
+
+            return director.Dir_userName == "" ?
+
+                 "No campo nome do usuario digite algum valor" :
+
+            director.Dir_userName.Length < 3 || director.Dir_userName.Length > 80 ?
+
+                 "No campo nome do usuario digite um nome com mais de 3 letras e menos de 80 letras" :
+
+            director.Dir_pwd == "" ?
+
+                 "No campo password digite algum valor" :
+
+            director.Dir_pwd.Length <= 5 || director.Dir_pwd.Length >= 20 ?
+
+                 "No campo password digite uma senha maior que 5 e menos que 20" :
+
+            director.Dir_role == "" ?
+
+                 "No campo ROLE digite algum valor" :
+
+            double.TryParse(director.Dir_role, out numero) ?
+
+                  "No campo ROLE do usuario digite letras, nao numeros" :
+
+             null;
+        }
+        public string TratamentoErroParaID(long id)
+        {
+            int numero;
+
+            return id <= 0 ?
+
+                "Digite uma id acima de 0" :
+
+                 !int.TryParse(id.ToString(), out numero) ?
+
+                  "Digite um id numerico" :
+
+                  null;
         }
     }
 }

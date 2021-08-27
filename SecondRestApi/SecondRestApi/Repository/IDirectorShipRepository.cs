@@ -4,9 +4,9 @@ using System.Collections.Generic;
 
 namespace SecondRestApi.Business
 {
-    public interface IDirectorShipBusiness
+    public interface IDirectorShipRepository
     {
-        DirectorShip FindByUserName(string username, string password);
+       DirectorShip FindByUserName(string username, string password);
         List<DirectorShip> FindAll();
         ActionResult<DirectorShip> Create(DirectorShip director);
         ActionResult<int> Delete(long id);

@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SecondRestApi.Business;
 using SecondRestApi.Model;
-using SecondRestApi.Repository.Implementations;
 using SecondRestApi.Services;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace SecondRestApi.Controllers
@@ -16,33 +16,13 @@ namespace SecondRestApi.Controllers
     public class DirectorShipController : ControllerBase
     {
         private readonly ILogger<DirectorShipController> _logger;
-        private IDirectorShipBusiness _directorShipBusiness;
+        private IDirectorShipRepository _directorShipRepository;
 
-        public DirectorShipController(ILogger<DirectorShipController> logger, IDirectorShipBusiness directorShipBusiness)
+
+        public DirectorShipController(ILogger<DirectorShipController> logger, IDirectorShipRepository directorShipRepository)
         {
             _logger = logger;
-            _directorShipBusiness = directorShipBusiness;
-        }
-
-        [HttpGet]
-        public IActionResult Get()
-        {
-            return Ok(_directorShipBusiness.FindAll());
-        }
-
-        [HttpPost]
-
-        public IActionResult Post([FromBody] DirectorShip director)
-        {
-            if (director == null) return BadRequest();
-            return Ok(_directorShipBusiness.Create(director));
-        }
-
-        [HttpDelete("{id}")]
-        public IActionResult Delete(long id)
-        {
-            _directorShipBusiness.Delete(id);
-            return NoContent();
+            _directorShipRepository = directorShipRepository;
         }
 
         [HttpPost]
@@ -50,7 +30,7 @@ namespace SecondRestApi.Controllers
         public async Task<ActionResult<dynamic>> Authenticate([FromBody] DirectorShip model)
         {
             // Recupera o usuário
-            var user = DiretoriaRepositoryImplementation.Get(model.Dir_userName, model.Dir_pwd);
+            var user = _directorShipRepository.FindByUserName(model.Dir_userName, model.Dir_pwd);
 
             // Verifica se o usuário existe
             if (user == null)
@@ -71,23 +51,39 @@ namespace SecondRestApi.Controllers
         }
 
         [HttpGet]
-        [Route("anonymous")]
-        [AllowAnonymous]
-        public string Anonymous() => "Anônimo";
+        [Authorize(Roles = "diretor")]
+        public async Task<ActionResult<List<DirectorShip>>> Get()
+        {
+            return Ok(_directorShipRepository.FindAll());
+        }
 
-        [HttpGet]
-        [Route("authenticated")]
-        [Authorize]
-        public string Authenticated() => String.Format("Autenticado - {0}", User.Identity.Name);
+        [HttpPost]
+        [Authorize(Roles = "diretor")]
+        public async Task<ActionResult<DirectorShip>> post([FromBody] DirectorShip director)
+        {      
+            return _directorShipRepository.Create(director);
+        }
 
-        [HttpGet]
-        [Route("employee")]
-        [Authorize(Roles = "employee,manager")]
-        public string Employee() => "Funcionário";
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "diretor")]
+        public async Task<ActionResult<int>> Delete(long id)
+        {
+            return _directorShipRepository.Delete(id);
+        }
 
-        [HttpGet]
-        [Route("manager")]
-        [Authorize(Roles = "manager")]
-        public string Manager() => "Gerente";
+        //[HttpGet]
+        //[Route("anonymous")]
+        //[AllowAnonymous]
+        //public string Anonymous() => "Anônimo";
+
+        //[HttpGet]
+        //[Route("authenticated")]
+        //[Authorize]
+        //public string Authenticated() => String.Format("Autenticado - {0}", User.Identity.Name);
+
+        //[HttpGet]
+        //[Route("employee")]
+        //[Authorize(Roles = "diretor,professor")]
+        //public string Employee() => "Funcionário";
     }
 }

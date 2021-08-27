@@ -26,53 +26,54 @@ namespace SecondRestApi.Business.Implementations
 
         public ActionResult<Student> FindById(long id)
         {
-            int numero;
-            var chamada = _StudentRepository.FindById(id);
+            var mensagemErro = TratamentoErroParaID(id);
+            if (mensagemErro != null)
+                return new BadRequestObjectResult(mensagemErro);
 
+            var chamada = _StudentRepository.FindById(id);
             if (chamada == null)
-            {
                 return new NotFoundObjectResult("usuario nao encontrado");
-            }
-            else
-            if (id < 0 || !int.TryParse(id.ToString(), out numero))
-            {
-                return new BadRequestObjectResult("Id invalido");
-            }
-            else
-            {
-                return chamada;
-            }
+
+            return chamada;
         }
 
         public ActionResult<Student> Create(Student student)
         {
-
             var mensagemErro = TratamentoErroParaDadosEstudante(student);
             if (mensagemErro != null)
-            {
                 return new BadRequestObjectResult(mensagemErro);
-            }
+
+            mensagemErro = TratamentoErroParaID(student.Alu_id);
+            if (mensagemErro != null)
+                return new BadRequestObjectResult(mensagemErro);
+
             return _StudentRepository.Create(student);
         }
 
         public ActionResult<int> Delete(long id)
         {
-            int numero;
+            //verificacao ID
+            var mensagemErro = TratamentoErroParaID(id);
+            if (mensagemErro != null)
+                return new BadRequestObjectResult(mensagemErro);
 
-            if (id < 0 || !int.TryParse(id.ToString(), out numero))
-            {
-                return new BadRequestObjectResult("Id invalido");
-            }
-            return _StudentRepository.Delete(id);
+            //Verifica se foi apagado do banco
+            var result = _StudentRepository.Delete(id);
+            if (result == null)
+                return new BadRequestObjectResult("Erro ao tentar deletar no banco de dados");
+            return Convert.ToInt32(id);
         }
 
         public ActionResult<Student> Update(Student student)
         {
             var mensagemErro = TratamentoErroParaDadosEstudante(student);
             if (mensagemErro != null)
-            {
                 return new BadRequestObjectResult(mensagemErro);
-            }
+
+            mensagemErro = TratamentoErroParaID(student.Alu_id);
+            if (mensagemErro != null)
+                return new BadRequestObjectResult(mensagemErro);
+
             return _StudentRepository.Update(student);
         }
 
@@ -120,7 +121,20 @@ namespace SecondRestApi.Business.Implementations
                  "Digite uma data valida" :
 
              null;
+        }
+        public string TratamentoErroParaID(long id)
+        {
+            int numero;
 
+            return id <= 0 ?
+
+                "Digite uma id acima de 0" :
+
+                 !int.TryParse(id.ToString(), out numero) ?
+
+                  "Digite um id numerico" :
+
+                  null;
         }
     }
 }

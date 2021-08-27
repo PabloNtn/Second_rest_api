@@ -56,6 +56,7 @@ namespace SecondRestApi
             services.AddScoped<IStudentBusiness, StudentBusinessImplementation>();
             services.AddScoped<IStudentRepository, StudentRepositoryImplementation>();
             services.AddScoped<IDirectorShipBusiness, DirectorShipBusinessImplementation>();
+            services.AddScoped<IDirectorShipRepository, DirectorShipRepositoryImplementation>();
 
             services.AddSwaggerGen(c =>
             {

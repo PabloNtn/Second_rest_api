@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Oracle.ManagedDataAccess.Client;
 using System.Data;
+using Microsoft.AspNetCore.Mvc;
 
 namespace SecondRestApi.Repository.Implementations
 {
@@ -129,8 +130,9 @@ namespace SecondRestApi.Repository.Implementations
             return student;
         }
 
-        public int Delete(long id)
+        public ActionResult<int> Delete(long id)
         {
+            bool testeDelecao = false;
             string conString = "User Id=SYSTEM;Password=257729;Data Source=localhost:1521/xe;";
             using (OracleConnection con = new OracleConnection(conString))
             {
@@ -146,6 +148,8 @@ namespace SecondRestApi.Repository.Implementations
                         cmd.Parameters.Add("DATA", DateTime.Now.ToString("dd/MM/yy HH:mm")).Direction = ParameterDirection.Input;
 
                         cmd.ExecuteNonQuery();
+
+                        testeDelecao = true;
                     }
                     catch (Exception ex)
                     {
@@ -157,6 +161,8 @@ namespace SecondRestApi.Repository.Implementations
                     }
                 }
             }
+            if (!testeDelecao)
+                return null;
             return Convert.ToInt32(id);
         }
 
