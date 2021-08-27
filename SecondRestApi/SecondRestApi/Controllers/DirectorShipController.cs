@@ -54,7 +54,7 @@ namespace SecondRestApi.Controllers
         [Authorize(Roles = "diretor")]
         public async Task<ActionResult<List<DirectorShip>>> Get()
         {
-            return Ok(_directorShipRepository.FindAll());
+            return _directorShipRepository.FindAll();
         }
 
         [HttpPost]

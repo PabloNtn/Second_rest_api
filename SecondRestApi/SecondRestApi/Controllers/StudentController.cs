@@ -95,7 +95,7 @@ namespace SecondRestApi.Controllers
         [Authorize(Roles = "diretor")]
         public async Task<ActionResult<Student>> Put([FromBody] Student student)
         {
-            return Ok(_studentBusiness.Update(student));
+            return _studentBusiness.Update(student);
         }
 
         [HttpDelete("{id}")]
